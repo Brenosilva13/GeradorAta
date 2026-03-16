@@ -12,7 +12,7 @@ export default function App() {
     nextMeeting: ''
   });
 
-  const PROJECT_NAME = "Inventário de Imobilizado";
+  const PROJECT_NAME = "Gestão de Frota Contratada - Táxi";
 
   const [showGuides, setShowGuides] = useState(true);
 
@@ -25,6 +25,7 @@ export default function App() {
     { id: 'm6', name: 'Karina', present: false },
     { id: 'm7', name: 'Isaac', present: false },
     { id: 'm8', name: 'Pedro Jacomini (Cliente)', present: false }
+    { id: 'm9', name: 'Gabriel (Operações)', present: false }
   ]);
   
   const [customAttendees, setCustomAttendees] = useState([]);
