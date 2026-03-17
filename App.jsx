@@ -24,7 +24,7 @@ export default function App() {
     { id: 'm5', name: 'Sofia Rodrigues', present: false },
     { id: 'm6', name: 'Karina', present: false },
     { id: 'm7', name: 'Isaac', present: false },
-    { id: 'm8', name: 'Pedro Jacomini (Cliente)', present: false }
+    { id: 'm8', name: 'Pedro Jacomini (Cliente)', present: false },
     { id: 'm9', name: 'Gabriel (Operações)', present: false }
   ]);
   
