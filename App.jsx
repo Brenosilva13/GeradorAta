@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Printer, Calendar, Clock, MapPin, Users, AlignLeft, CheckSquare, Layout } from 'lucide-react';
-import './index.css';
+import { Plus, Trash2, Printer, Calendar, Clock, MapPin, Users, AlignLeft, CheckSquare, Layout, Type, Briefcase } from 'lucide-react';
 
 export default function App() {
   const [formData, setFormData] = useState({
+    projectName: "Gestão de Frota Contratada - Táxi",
+    meetingTitle: '',
     date: '',
     time: '',
     location: '',
@@ -11,8 +12,6 @@ export default function App() {
     topics: '',
     nextMeeting: ''
   });
-
-  const PROJECT_NAME = "Gestão de Frota Contratada - Táxi";
 
   const [showGuides, setShowGuides] = useState(true);
 
@@ -60,7 +59,7 @@ export default function App() {
   };
 
   const addCustomAttendee = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (newAttendee.trim()) {
       setCustomAttendees([...customAttendees, { id: Date.now(), name: newAttendee.trim() }]);
       setNewAttendee('');
@@ -101,16 +100,13 @@ export default function App() {
         width: 100% !important;
         min-height: auto !important;
         margin: 0 !important;
-        padding: 20mm 25mm !important; /* Mantém igual ao ecrã */
+        padding: 10mm 15mm !important;
         box-shadow: none !important;
         border: none !important;
         display: block !important; 
       }
-      /* Classes para evitar quebra no meio da linha/tabela */
       .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
       tr { break-inside: avoid; page-break-inside: avoid; }
-      
-      /* Esconde as guias visuais na hora de imprimir */
       .page-guides { display: none !important; }
     }
   `;
@@ -119,8 +115,8 @@ export default function App() {
     <div id="app-container" className="flex h-screen bg-slate-100 font-sans text-slate-800 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{printStyles}</style>
 
+      {/* SIDEBAR DE EDIÇÃO */}
       <div id="form-sidebar" className="w-full md:w-[450px] bg-white border-r border-slate-200 flex flex-col h-full z-10 shadow-xl">
-        
         <header className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
           <img 
             src="https://upload.wikimedia.org/wikipedia/commons/5/55/Seara_Alimentos_logo_%282024%29.svg" 
@@ -150,16 +146,38 @@ export default function App() {
           
           <section>
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <AlignLeft size={14} /> Detalhes da Reunião
+              <Briefcase size={14} /> Identificação
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-[13px] font-semibold text-slate-700 mb-1">Projeto Fixo</label>
-                <div className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-bold text-sm cursor-default">
-                  {PROJECT_NAME}
-                </div>
+                <label className="block text-[13px] font-semibold text-slate-700 mb-1">Nome do Projeto</label>
+                <input 
+                  type="text" 
+                  name="projectName" 
+                  value={formData.projectName} 
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none font-medium"
+                />
               </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-slate-700 mb-1">Título da Reunião</label>
+                <input 
+                  type="text" 
+                  name="meetingTitle" 
+                  value={formData.meetingTitle} 
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none"
+                  placeholder="Ex: Alinhamento Semanal"
+                />
+              </div>
+            </div>
+          </section>
 
+          <section>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <AlignLeft size={14} /> Detalhes Logísticos
+            </h2>
+            <div className="space-y-4">
               <div className="flex gap-4">
                 <div className="w-1/2">
                   <label className="block text-[13px] font-semibold text-slate-700 mb-1">Data</label>
@@ -182,7 +200,7 @@ export default function App() {
                 <input 
                   type="text" name="location" value={formData.location} onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none"
-                  placeholder="Ex: Sala de Reuniões / Microsoft Teams"
+                  placeholder="Ex: Sala de Reuniões / Teams"
                 />
               </div>
             </div>
@@ -194,7 +212,7 @@ export default function App() {
             </h2>
             
             <div className="mb-4">
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Membros da Equipa (Marque os presentes)</label>
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Equipe Fixa</label>
               <div className="grid grid-cols-2 gap-2">
                 {members.map(member => (
                   <label key={member.id} className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${member.present ? 'bg-red-50 border-red-200 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}>
@@ -217,15 +235,15 @@ export default function App() {
                   type="text" 
                   value={newAttendee}
                   onChange={(e) => setNewAttendee(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addCustomAttendee(e)}
+                  onKeyDown={(e) => e.key === 'Enter' && addCustomAttendee()}
                   className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none"
-                  placeholder="Nome do participante extra..."
+                  placeholder="Nome do convidado..."
                 />
                 <button 
                   onClick={addCustomAttendee}
                   className="px-3 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-colors text-sm font-semibold flex items-center gap-1 shadow-sm"
                 >
-                  <Plus size={16} /> Add
+                  <Plus size={16} />
                 </button>
               </div>
               
@@ -234,7 +252,7 @@ export default function App() {
                   {customAttendees.map(attendee => (
                     <li key={attendee.id} className="flex justify-between items-center bg-white border border-slate-200 px-3 py-2 rounded-md text-sm text-slate-700 font-medium shadow-sm">
                       {attendee.name}
-                      <button onClick={() => removeCustomAttendee(attendee.id)} className="text-slate-400 hover:text-red-500 transition-colors p-1" title="Remover convidado">
+                      <button onClick={() => removeCustomAttendee(attendee.id)} className="text-slate-400 hover:text-red-500 transition-colors p-1">
                         <Trash2 size={14} />
                       </button>
                     </li>
@@ -246,12 +264,12 @@ export default function App() {
 
           <section>
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <AlignLeft size={14} /> Tópicos Abordados
+              <Type size={14} /> Pauta e Discussão
             </h2>
             <textarea 
               name="topics" value={formData.topics} onChange={handleInputChange} rows="6"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none resize-none"
-              placeholder="Registe os principais pontos e decisões..."
+              placeholder="Registe os principais pontos discutidos..."
             />
           </section>
 
@@ -302,7 +320,6 @@ export default function App() {
                   <button 
                     onClick={() => removeAction(action.id)}
                     className="absolute -top-3 -right-3 p-1.5 bg-red-50 text-red-500 border border-red-100 rounded-full hover:bg-red-500 hover:text-white shadow-sm opacity-0 group-hover:opacity-100 transition-all"
-                    title="Remover"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -314,7 +331,7 @@ export default function App() {
               onClick={addAction}
               className="w-full py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-md transition-colors flex items-center justify-center gap-2 text-sm font-semibold shadow-sm"
             >
-              <Plus size={16} /> Adicionar Nova Tarefa
+              <Plus size={16} /> Nova Tarefa
             </button>
           </section>
 
@@ -322,20 +339,17 @@ export default function App() {
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Calendar size={14} /> Próxima Reunião
             </h2>
-            <div>
-              <input 
-                type="text" name="nextMeeting" value={formData.nextMeeting} onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none"
-                placeholder="Ex: 15/11 às 14:00 - Teams"
-              />
-            </div>
+            <input 
+              type="text" name="nextMeeting" value={formData.nextMeeting} onChange={handleInputChange}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all text-sm outline-none"
+              placeholder="Ex: Próxima segunda, 14h"
+            />
           </section>
-
         </div>
       </div>
 
+      {/* DOCUMENT PREVIEW */}
       <div id="preview-container" className="hidden md:flex flex-1 overflow-y-auto justify-center p-8 bg-slate-200/60 relative">
-        
         <div 
           id="document-page" 
           className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex flex-col relative"
@@ -343,7 +357,7 @@ export default function App() {
             width: '210mm', 
             minHeight: '297mm',
             height: 'max-content',
-            padding: '20mm 25mm',
+            padding: '12mm 18mm',
             color: '#1e293b' 
           }}
         >
@@ -354,163 +368,158 @@ export default function App() {
                 backgroundImage: 'repeating-linear-gradient(to bottom, transparent, transparent calc(297mm - 2px), rgba(239, 68, 68, 0.4) calc(297mm - 2px), rgba(239, 68, 68, 0.4) 297mm)',
                 backgroundSize: '100% 297mm'
               }}
-            >
-            </div>
+            />
           )}
 
           <div className="flex-1 relative z-10">
-            
-            <header className="flex flex-col mb-10 print-avoid-break">
+            <header className="flex flex-col mb-8 print-avoid-break">
               <div className="flex justify-between items-center mb-6">
                 <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/5/55/Seara_Alimentos_logo_%282024%29.svg" 
                   alt="Logo" 
-                  className="h-16 object-contain"
+                  className="h-14 object-contain"
                   onError={(e) => {
                     e.target.onerror = null; 
                     e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30"><text x="0" y="20" font-family="sans-serif" font-weight="bold" font-size="20" fill="%23e3000f">SEARA</text></svg>';
                   }}
                 />
                 <div className="text-right">
-                  <h1 className="text-2xl font-light tracking-tight text-slate-800 uppercase">Ata de <span className="font-bold text-red-600">Reunião</span></h1>
+                  <h1 className="text-2xl font-light tracking-tight text-slate-800 uppercase leading-none">Ata de <span className="font-bold text-red-600">Reunião</span></h1>
                 </div>
               </div>
               
-              <div className="border-t-2 border-slate-800 pt-4 pb-4 border-b border-slate-200 flex justify-between items-center">
+              <div className="border-t-2 border-slate-800 pt-3 pb-3 border-b border-slate-200 flex justify-between items-center">
                 <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Projeto / Escopo</span>
-                    <h2 className="text-lg font-bold text-slate-900 uppercase tracking-wide">{PROJECT_NAME}</h2>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Projeto / Área</span>
+                    <h2 className="text-base font-bold text-slate-900 uppercase tracking-wide leading-tight">{formData.projectName || '—'}</h2>
                 </div>
-                <div className="text-right flex gap-8">
+                <div className="text-right flex gap-6">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Data</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Data</span>
                       <span className="text-sm font-semibold text-slate-800">{formData.date ? new Date(formData.date + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Hora</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Hora</span>
                       <span className="text-sm font-semibold text-slate-800">{formData.time || '—'}</span>
                     </div>
                 </div>
               </div>
             </header>
 
-            <div className="space-y-8">
-              
-              <div className="text-sm print-avoid-break">
-                <div className="w-full min-w-0">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Local / Formato</span>
-                  <span className="font-medium text-slate-700 break-words">{formData.location || '—'}</span>
+            <div className="space-y-6">
+              {/* Título da Reunião e Local lado a lado */}
+              <div className="grid grid-cols-2 gap-6 text-sm print-avoid-break">
+                <div>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Título da Reunião</span>
+                  <span className="font-medium text-slate-700">{formData.meetingTitle || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Local / Formato</span>
+                  <span className="font-medium text-slate-700">{formData.location || '—'}</span>
                 </div>
               </div>
 
               <div className="print-avoid-break">
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">
-                  Participantes Presentes
+                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1.5 mb-3">
+                  Participantes
                 </h3>
                 <div>
                   {(members.some(m => m.present) || customAttendees.length > 0) ? (
-                    <ul className="flex flex-wrap gap-2 text-sm text-slate-700">
+                    <ul className="flex flex-wrap gap-1.5 text-sm text-slate-700">
                       {members.filter(m => m.present).map((person) => (
-                        <li key={person.id} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 flex items-center">
+                        <li key={person.id} className="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-700">
                           {person.name}
                         </li>
                       ))}
                       {customAttendees.map((person) => (
-                        <li key={person.id} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                        <li key={person.id} className="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-700 flex items-center gap-1">
                           {person.name} 
-                          <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider bg-white px-1.5 py-0.5 rounded-full border border-slate-200">Conv.</span>
+                          <span className="text-[7px] text-slate-400 font-bold uppercase px-1 py-0.5 rounded-full border border-slate-200 bg-white">Conv.</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-slate-400 italic text-sm">Nenhum participante marcado como presente.</p>
+                    <p className="text-slate-400 italic text-xs">Nenhum participante registrado.</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 print-avoid-break">
+                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1.5 mb-3 print-avoid-break">
                   Pauta e Deliberações
                 </h3>
-                <div>
+                <div className="min-h-[80px]">
                   {formData.topics ? (
-                    <div className="whitespace-pre-wrap break-words text-slate-700 text-sm leading-relaxed text-justify">
+                    <div className="whitespace-pre-wrap break-words text-slate-700 text-xs leading-relaxed text-justify">
                       {formData.topics}
                     </div>
                   ) : (
-                    <p className="text-slate-400 italic text-sm">Nenhum registo de discussões preenchido.</p>
+                    <p className="text-slate-400 italic text-xs">Aguardando registro dos tópicos...</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 print-avoid-break">
+                <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1.5 mb-3 print-avoid-break">
                   Plano de Ação
                 </h3>
-                <div>
-                  <table className="w-full text-left border-collapse table-fixed">
-                    <thead className="print-avoid-break">
-                      <tr>
-                        <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-2/5 border-b border-slate-200">Ação / Tarefa</th>
-                        <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-1/4 border-b border-slate-200">Responsável</th>
-                        <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider w-1/5 border-b border-slate-200">Prazo</th>
-                        <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right border-b border-slate-200">Status</th>
+                <table className="w-full text-left border-collapse">
+                  <thead className="print-avoid-break">
+                    <tr>
+                      <th className="pb-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider w-[45%] border-b border-slate-100">Ação / Tarefa</th>
+                      <th className="pb-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider w-[20%] border-b border-slate-100">Responsável</th>
+                      <th className="pb-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider w-[18%] border-b border-slate-100">Prazo</th>
+                      <th className="pb-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider text-right border-b border-slate-100">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {actions.filter(a => a.task || a.owner || a.deadline).length > 0 ? (
+                      actions.map((action) => (
+                        (action.task || action.owner || action.deadline) && (
+                          <tr key={action.id} className="print-avoid-break">
+                            <td className="py-2.5 pr-2 text-[11px] font-medium text-slate-800 border-b border-slate-50 break-words leading-tight">{action.task || '—'}</td>
+                            <td className="py-2.5 pr-2 text-[11px] text-slate-600 border-b border-slate-50 break-words">{action.owner || '—'}</td>
+                            <td className="py-2.5 text-[11px] text-slate-600 border-b border-slate-50">
+                              {action.deadline ? new Date(action.deadline + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}
+                            </td>
+                            <td className="py-2.5 text-right border-b border-slate-50">
+                              <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-tight
+                                ${action.status === 'Concluído' ? 'text-green-600 bg-green-50' : 
+                                  action.status === 'Em Andamento' ? 'text-blue-600 bg-blue-50' : 
+                                  'text-slate-500 bg-slate-100'}
+                              `}>
+                                {action.status}
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      ))
+                    ) : (
+                      <tr className="print-avoid-break">
+                        <td colSpan="4" className="py-4 text-center text-slate-300 italic text-xs">Sem tarefas pendentes.</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {actions.filter(a => a.task || a.owner || a.deadline).length > 0 ? (
-                        actions.map((action) => (
-                          (action.task || action.owner || action.deadline) && (
-                            <tr key={action.id} className="print-avoid-break">
-                              <td className="py-3 pr-2 text-sm font-medium text-slate-800 border-b border-slate-100 break-words">{action.task || '—'}</td>
-                              <td className="py-3 pr-2 text-sm text-slate-600 border-b border-slate-100 break-words">{action.owner || '—'}</td>
-                              <td className="py-3 text-sm text-slate-600 border-b border-slate-100">
-                                {action.deadline ? new Date(action.deadline + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}
-                              </td>
-                              <td className="py-3 text-right border-b border-slate-100">
-                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
-                                  ${action.status === 'Concluído' ? 'text-green-600 bg-green-50' : 
-                                    action.status === 'Em Andamento' ? 'text-blue-600 bg-blue-50' : 
-                                    'text-slate-500 bg-slate-100'}
-                                `}>
-                                  {action.status || 'Pendente'}
-                                </span>
-                              </td>
-                            </tr>
-                          )
-                        ))
-                      ) : (
-                        <tr className="print-avoid-break">
-                          <td colSpan="4" className="py-6 text-center text-slate-400 italic text-sm border-b border-slate-100">
-                            Nenhuma ação pendente gerada.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                    )}
+                  </tbody>
+                </table>
               </div>
 
               {formData.nextMeeting && (
-                <div className="mt-8 print-avoid-break">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 mb-3">
-                    Agendamento Futuro
+                <div className="mt-4 print-avoid-break">
+                  <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1 mb-2">
+                    Próximo Agendamento
                   </h3>
-                  <p className="text-sm font-medium text-slate-800">{formData.nextMeeting}</p>
+                  <p className="text-xs font-medium text-slate-800">{formData.nextMeeting}</p>
                 </div>
               )}
-
             </div>
           </div>
 
-          <footer className="relative z-10 mt-12 pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400 font-medium print-avoid-break">
-            <span className="uppercase tracking-widest">Seara - Documento Interno</span>
+          <footer className="relative z-10 mt-8 pt-3 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium print-avoid-break uppercase tracking-widest">
+            <span>Seara • Documento de Gestão</span>
             <span>Gerado em {new Date().toLocaleDateString('pt-BR')}</span>
           </footer>
-          
         </div>
       </div>
-      
     </div>
   );
 }
