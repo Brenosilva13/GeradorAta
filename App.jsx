@@ -24,7 +24,10 @@ export default function App() {
     { id: 'm6', name: 'Karina', present: false },
     { id: 'm7', name: 'Isaac', present: false },
     { id: 'm8', name: 'Pedro Jacomini (Cliente)', present: false },
-    { id: 'm9', name: 'Gabriel (Operações)', present: false }
+    { id: 'm9', name: 'Gabriel (Operações)', present: false },
+    { id: 'm10', name: 'Modolo (Professor)', present: false },
+    { id: 'm11', name: 'Vicente (TECH)', present: false },
+    { id: 'm12', name: 'Camilla Ucci (TECH)', present: false },
   ]);
   
   const [customAttendees, setCustomAttendees] = useState([]);
