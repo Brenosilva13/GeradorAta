@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Printer, Calendar, Clock, MapPin, Users, AlignLeft, CheckSquare, Layout, Type, Briefcase } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Printer, 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  Users, 
+  AlignLeft, 
+  CheckSquare, 
+  Layout, 
+  Type, 
+  Briefcase,
+  Paperclip,
+  FileText,
+  Image as ImageIcon,
+  Upload
+} from 'lucide-react';
 
 export default function App() {
   const [formData, setFormData] = useState({
@@ -14,6 +31,7 @@ export default function App() {
   });
 
   const [showGuides, setShowGuides] = useState(true);
+  const [attachments, setAttachments] = useState([]);
 
   const [members, setMembers] = useState([
     { id: 'm1', name: 'Breno', present: false },
@@ -71,6 +89,36 @@ export default function App() {
 
   const removeCustomAttendee = (id) => {
     setCustomAttendees(customAttendees.filter(a => a.id !== id));
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    files.forEach(file => {
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        setAttachments(prev => [
+          ...prev,
+          {
+            id: Date.now() + Math.random().toString(36).substring(2, 9),
+            name: file.name,
+            type: file.type,
+            size: (file.size / 1024).toFixed(1) + ' KB',
+            content: reader.result // Base64 data para renderização local
+          }
+        ]);
+      };
+      
+      reader.readAsDataURL(file);
+    });
+
+    // Reset para permitir fazer upload do mesmo arquivo consecutivamente se necessário
+    e.target.value = '';
+  };
+
+  const removeAttachment = (id) => {
+    setAttachments(prev => prev.filter(att => att.id !== id));
   };
 
   const handlePrint = () => {
@@ -338,6 +386,65 @@ export default function App() {
             </button>
           </section>
 
+          {/* NOVA SEÇÃO DE ANEXOS NA SIDEBAR */}
+          <section>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Paperclip size={14} /> Anexar Documentos / Imagens
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="relative border-2 border-dashed border-slate-200 hover:border-red-300 rounded-lg p-4 transition-colors bg-slate-50 text-center cursor-pointer">
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*, application/pdf" 
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="p-2 bg-white rounded-full shadow-sm text-slate-400">
+                    <Upload size={20} />
+                  </div>
+                  <span className="text-[13px] font-semibold text-slate-700">Clique para anexar arquivos</span>
+                  <span className="text-[11px] text-slate-400">Imagens (PNG, JPG) ou PDFs de até 5MB</span>
+                </div>
+              </div>
+
+              {attachments.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Arquivos Anexados ({attachments.length})</span>
+                  <div className="space-y-2">
+                    {attachments.map((att) => (
+                      <div key={att.id} className="flex justify-between items-center bg-white border border-slate-200 p-2.5 rounded-md text-sm shadow-sm">
+                        <div className="flex items-center gap-2.5 overflow-hidden pr-2">
+                          {att.type.startsWith('image/') ? (
+                            <div className="w-8 h-8 rounded border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 bg-slate-50">
+                              <img src={att.content} alt="preview" className="w-full h-full object-cover" />
+                            </div>
+                          ) : (
+                            <div className="w-8 h-8 rounded border border-slate-200 overflow-hidden flex items-center justify-center shrink-0 bg-red-50 text-red-500">
+                              <FileText size={16} />
+                            </div>
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[12px] font-semibold text-slate-800 truncate leading-tight">{att.name}</span>
+                            <span className="text-[10px] text-slate-400">{att.size}</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => removeAttachment(att.id)} 
+                          className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
           <section className="pb-8">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Calendar size={14} /> Próxima Reunião
@@ -512,6 +619,52 @@ export default function App() {
                     Próximo Agendamento
                   </h3>
                   <p className="text-xs font-medium text-slate-800">{formData.nextMeeting}</p>
+                </div>
+              )}
+
+              {/* NOVA SEÇÃO DE EXIBIÇÃO DE ANEXOS NA ATA PREVIEW (A4) */}
+              {attachments.length > 0 && (
+                <div className="mt-6 print-avoid-break">
+                  <h3 className="text-[11px] font-bold text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1.5 mb-3">
+                    Anexos e Documentações Complementares
+                  </h3>
+                  
+                  {/* Grid de imagens anexadas */}
+                  {attachments.some(att => att.type.startsWith('image/')) && (
+                    <div className="mb-4">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Imagens Anexas</span>
+                      <div className="grid grid-cols-2 gap-3">
+                        {attachments.filter(att => att.type.startsWith('image/')).map(att => (
+                          <div key={att.id} className="border border-slate-200 rounded p-1.5 bg-slate-50 flex flex-col items-center">
+                            <div className="w-full h-36 flex items-center justify-center overflow-hidden rounded bg-white border border-slate-100">
+                              <img src={att.content} alt={att.name} className="max-w-full max-h-full object-contain" />
+                            </div>
+                            <span className="text-[9px] text-slate-500 font-medium mt-1.5 truncate w-full text-center px-1">{att.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lista de documentos PDF anexados */}
+                  {attachments.some(att => att.type === 'application/pdf') && (
+                    <div>
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Documentos de Referência (PDF)</span>
+                      <div className="grid grid-cols-2 gap-3">
+                        {attachments.filter(att => att.type === 'application/pdf').map(att => (
+                          <div key={att.id} className="flex items-center gap-2.5 border border-slate-200 rounded p-2 bg-slate-50/50">
+                            <div className="w-8 h-8 rounded border border-red-100 flex items-center justify-center shrink-0 bg-red-50 text-red-600">
+                              <FileText size={16} />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[10px] font-bold text-slate-800 truncate leading-tight">{att.name}</span>
+                              <span className="text-[8px] text-slate-400 uppercase font-semibold">Documento PDF ({att.size})</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
